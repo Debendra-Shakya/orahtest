@@ -18,6 +18,7 @@ export const HomeBoardPage: React.FC = () => {
 
   const [sortArray,setSortArray]=useState<Person[]>([])
   const [click,setClick]=useState(0)
+  const [isSort,setIsSort]=useState(false)
 
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
 
@@ -33,6 +34,7 @@ export const HomeBoardPage: React.FC = () => {
     }
 
     if(action==='sort'){
+      setIsSort(true)
       let clickCount=click+1;
       
      setClick(clickCount)
@@ -85,8 +87,8 @@ export const HomeBoardPage: React.FC = () => {
 
             ))}
 
-                {console.log(!sortArray)}
-            {data.students.map((s) => (
+                {console.log(!isSort)}
+            {!isSort && data.students.map((s) => (
               <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
             ))}
           </>
@@ -108,24 +110,13 @@ interface ToolbarProps {
   onItemClick: (action: ToolbarAction, value?: string) => void
 }
 const Toolbar: React.FC<ToolbarProps> = (props) => {
-  //namelist 
-  const [nameList,setNameList]=useState('First Name')
-  let click=0;
-  function Click(){
-    if(click % 2===0){
+  
 
-      click++;
-      return 'sort_desc'
-    }else{
-      click++;
-      return 'sort_asce'
-    }
-  }
 
   const { onItemClick } = props
   return (
     <S.ToolbarContainer>
-      <div onClick={() => onItemClick("sort")}>{nameList}</div>
+      <div onClick={() => onItemClick("sort")}>First name</div>
       {/* <div onClick={() => onItemClick(Click)}>first Name</div> */}
       <div>Search</div>
       <S.Button onClick={() => onItemClick("roll")}>Start Roll</S.Button>
