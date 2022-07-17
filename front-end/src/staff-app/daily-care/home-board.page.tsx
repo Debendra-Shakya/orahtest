@@ -12,6 +12,9 @@ import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active
 
 import orderBy from "lodash/orderBy";
 
+
+
+
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
 
@@ -21,6 +24,17 @@ export const HomeBoardPage: React.FC = () => {
   const [isSort,setIsSort]=useState(false)
 
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
+
+
+  const searchHandle = (value: string) => {
+    console.log("sorted array" ,sortArray.filter((s)=>s.first_name))
+    if (value && value.length > 0) {
+      if (sortArray && sortArray.length) {
+        setSortArray(sortArray.filter((s) => s.first_name.concat(" ", s.last_name).toLowerCase().match(value.toLowerCase())))
+      }
+    }
+  }
+
 
   useEffect(() => {
     void getStudents()
@@ -71,7 +85,7 @@ export const HomeBoardPage: React.FC = () => {
   return (
     <>
       <S.PageContainer>
-        <Toolbar onItemClick={onToolbarAction} />
+        <Toolbar onItemClick={onToolbarAction} searchHandle={searchHandle}/>
 
         {loadState === "loading" && (
           <CenteredContainer>
@@ -108,17 +122,20 @@ export const HomeBoardPage: React.FC = () => {
 type ToolbarAction = "roll" | "sort" 
 interface ToolbarProps {
   onItemClick: (action: ToolbarAction, value?: string) => void
+  searchHandle:(value:string)=>void
+
 }
 const Toolbar: React.FC<ToolbarProps> = (props) => {
   
 
 
-  const { onItemClick } = props
+  const { onItemClick,searchHandle } = props
   return (
     <S.ToolbarContainer>
       <div onClick={() => onItemClick("sort")}>First name</div>
       {/* <div onClick={() => onItemClick(Click)}>first Name</div> */}
-      <div>Search</div>
+      <input type='text' placeholder="Search" onChange={(event)=>{searchHandle(event.target.value)}}/>
+      {/* <div>Search</div> */}
       <S.Button onClick={() => onItemClick("roll")}>Start Roll</S.Button>
     </S.ToolbarContainer>
   )
