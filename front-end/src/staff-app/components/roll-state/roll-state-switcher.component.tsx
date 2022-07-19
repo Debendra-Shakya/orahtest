@@ -9,6 +9,7 @@ interface Props {
 }
 export const RollStateSwitcher: React.FC<Props> = ({ initialState = "unmark", size = 40, onStateChange }) => {
   const [rollState, setRollState] = useState(initialState)
+  const [present,setPresent]=useState(0)
 
   const nextState = () => {
     const states: RolllStateType[] = ["present", "late", "absent"]
@@ -19,7 +20,14 @@ export const RollStateSwitcher: React.FC<Props> = ({ initialState = "unmark", si
 
   const onClick = () => {
     const next = nextState()
+    console.log(rollState)
     setRollState(next)
+    console.log(rollState)
+    if(rollState==="unmark"){
+      setPresent(present+1)
+      console.log(present)
+    }
+
     if (onStateChange) {
       onStateChange(next)
     }

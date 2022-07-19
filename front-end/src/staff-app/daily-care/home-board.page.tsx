@@ -22,10 +22,6 @@ export const HomeBoardPage: React.FC = () => {
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
 
   const searchHandle = (value: string) => {
-    console.log(
-      "sorted array",
-      sortArray.filter((s) => s.first_name)
-    )
 
     if (value && value.length > 0) {
       if (sortArray && sortArray.length) {
