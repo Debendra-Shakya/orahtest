@@ -28,19 +28,30 @@ export const HomeBoardPage: React.FC = () => {
 
   const searchHandle = (value: string) => {
     console.log("sorted array" ,sortArray.filter((s)=>s.first_name))
+
     if (value && value.length > 0) {
       if (sortArray && sortArray.length) {
-        setSortArray(sortArray.filter((s) => s.first_name.concat(" ", s.last_name).toLowerCase().match(value.toLowerCase())))
+        setSortArray(sortArray.filter((s) => s.first_name.toLowerCase().match(value.toLowerCase())))
+      }
+      if(data?.students ){
+        return data.students.filter((s)=>{
+            s.first_name.toLowerCase().match(value.toLowerCase())
+        })
       }
     }
   }
 
-
+let sdata=data?.students
+console.log(sdata)
   useEffect(() => {
     void getStudents()
     // console.log(void getStudents())
     // console.log(data?.students)
   }, [getStudents])
+  useEffect(() => {
+    setSortArray(sdata)
+  }, [data])
+
 
   const onToolbarAction = (action: ToolbarAction) => {
     if (action === "roll") {
@@ -93,7 +104,7 @@ export const HomeBoardPage: React.FC = () => {
           </CenteredContainer>
         )}
 
-        {loadState === "loaded" && data?.students && (
+        {loadState === "loaded" && sortArray && (
           <>
           {console.log("issorted?",sortArray)}
             {sortArray?.map((s)=>(
@@ -102,13 +113,10 @@ export const HomeBoardPage: React.FC = () => {
             ))}
 
                 {console.log(!isSort)}
-            {!isSort && data.students.map((s) => (
-              <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
-            ))}
           </>
         )}
 
-        {loadState === "error" && (
+        {loadState === "error" &&(
           <CenteredContainer>
             <div>Failed to load</div>
           </CenteredContainer>
