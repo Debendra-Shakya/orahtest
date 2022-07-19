@@ -10,81 +10,78 @@ import { useApi } from "shared/hooks/use-api"
 import { StudentListTile } from "staff-app/components/student-list-tile/student-list-tile.component"
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
 
-import orderBy from "lodash/orderBy";
-
-
-
+import orderBy from "lodash/orderBy"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
 
-
-  const [sortArray,setSortArray]=useState<Person[]>([])
-  const [click,setClick]=useState(0)
-  const [isSort,setIsSort]=useState(false)
+  const [sortArray, setSortArray] = useState<Person[]>()
+  const [click, setClick] = useState(0)
+  const [isSort, setIsSort] = useState(false)
 
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
 
-
   const searchHandle = (value: string) => {
-    console.log("sorted array" ,sortArray.filter((s)=>s.first_name))
+    console.log(
+      "sorted array",
+      sortArray.filter((s) => s.first_name)
+    )
 
     if (value && value.length > 0) {
       if (sortArray && sortArray.length) {
         setSortArray(sortArray.filter((s) => s.first_name.toLowerCase().match(value.toLowerCase())))
       }
-      if(data?.students ){
-        return data.students.filter((s)=>{
-            s.first_name.toLowerCase().match(value.toLowerCase())
+      if (data?.students) {
+        return data.students.filter((s) => {
+          s.first_name.toLowerCase().match(value.toLowerCase())
         })
       }
     }
   }
 
-let sdata=data?.students
-console.log(sdata)
+  let sdata = data?.students
+  console.log(sdata)
   useEffect(() => {
     void getStudents()
     // console.log(void getStudents())
     // console.log(data?.students)
   }, [getStudents])
-  useEffect(() => {
-    setSortArray(sdata)
-  }, [data])
-
+  // useEffect(() => {
+  //   if(loadState==="unloaded"){
+  //     setSortArray(sdata)
+  //     console.log('sdata')
+  //   }
+  // }, [data])
 
   const onToolbarAction = (action: ToolbarAction) => {
     if (action === "roll") {
       setIsRollMode(true)
     }
 
-    if(action==='sort'){
+    if (action === "sort") {
       setIsSort(true)
-      let clickCount=click+1;
-      
-     setClick(clickCount)
-      console.log(click)
-      if(click %2===0){
+      let clickCount = click + 1
 
-        let arr=data?.students.map((s)=>{
+      setClick(clickCount)
+      console.log(click)
+      if (click % 2 === 0) {
+        let arr = data?.students.map((s) => {
           return s
         })
-        let sorted_arr= orderBy(arr,["first_name"],['desc'])
-        console.log('asace array',sorted_arr)
+        let sorted_arr = orderBy(arr, ["first_name"], ["desc"])
+        console.log("asace array", sorted_arr)
         setSortArray(sorted_arr)
         // return sortArray
-      }
-      else{
-        let arr=data?.students.map((s)=>{
+      } else {
+        let arr = data?.students.map((s) => {
           return s
         })
-        let sorted_arr= orderBy(arr,["first_name"],['asc'])
-        console.log('asace array',sorted_arr)
+        let sorted_arr = orderBy(arr, ["first_name"], ["asc"])
+        console.log("asace array", sorted_arr)
         setSortArray(sorted_arr)
         return sortArray
       }
     }
-  
   }
 
   const onActiveRollAction = (action: ActiveRollAction) => {
@@ -96,7 +93,7 @@ console.log(sdata)
   return (
     <>
       <S.PageContainer>
-        <Toolbar onItemClick={onToolbarAction} searchHandle={searchHandle}/>
+        <Toolbar onItemClick={onToolbarAction} searchHandle={searchHandle} />
 
         {loadState === "loading" && (
           <CenteredContainer>
@@ -104,19 +101,24 @@ console.log(sdata)
           </CenteredContainer>
         )}
 
-        {loadState === "loaded" && sortArray && (
-          <>
-          {console.log("issorted?",sortArray)}
-            {sortArray?.map((s)=>(
-                     <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
-
-            ))}
+        {loadState === "loaded" && sortArray
+          ? sortArray.map((s)=>(
+            <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
+          ))
+          : loadState === "loaded" &&
+            data?.students && (
+              <>
+             {setSortArray(data.students)}
+                {console.log("issorted?", sortArray)}
+                {data?.students?.map((s) => (
+                  <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
+                ))}
 
                 {console.log(!isSort)}
-          </>
-        )}
+              </>
+            )}
 
-        {loadState === "error" &&(
+        {loadState === "error" && (
           <CenteredContainer>
             <div>Failed to load</div>
           </CenteredContainer>
@@ -127,22 +129,24 @@ console.log(sdata)
   )
 }
 
-type ToolbarAction = "roll" | "sort" 
+type ToolbarAction = "roll" | "sort"
 interface ToolbarProps {
   onItemClick: (action: ToolbarAction, value?: string) => void
-  searchHandle:(value:string)=>void
-
+  searchHandle: (value: string) => void
 }
 const Toolbar: React.FC<ToolbarProps> = (props) => {
-  
-
-
-  const { onItemClick,searchHandle } = props
+  const { onItemClick, searchHandle } = props
   return (
     <S.ToolbarContainer>
       <div onClick={() => onItemClick("sort")}>First name</div>
       {/* <div onClick={() => onItemClick(Click)}>first Name</div> */}
-      <input type='text' placeholder="Search" onChange={(event)=>{searchHandle(event.target.value)}}/>
+      <input
+        type="text"
+        placeholder="Search"
+        onChange={(event) => {
+          searchHandle(event.target.value)
+        }}
+      />
       {/* <div>Search</div> */}
       <S.Button onClick={() => onItemClick("roll")}>Start Roll</S.Button>
     </S.ToolbarContainer>
