@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect,useRef} from "react"
 import styled from "styled-components"
 import Button from "@material-ui/core/ButtonBase"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -11,10 +11,13 @@ import { StudentListTile } from "staff-app/components/student-list-tile/student-
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
 
 import orderBy from "lodash/orderBy"
+import { RolllStateType } from "shared/models/roll"
+import {add,get,LocalStorageKey} from "shared/helpers/local-storage"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
 
+  const [filtered,setFiltered]=useState<boolean>(false)
   const [sortArray, setSortArray] = useState<Person[]>()
   const [click, setClick] = useState(0)
   const [isSort, setIsSort] = useState(false)
@@ -83,9 +86,22 @@ export const HomeBoardPage: React.FC = () => {
   const onActiveRollAction = (action: ActiveRollAction) => {
     if (action === "exit") {
       setIsRollMode(false)
-    }
+    } 
   }
+  const inititalRollCount={
+    presentCount:0,
+    absentCount:0,
+    lateCount:0,
+  }
+  const [rollCount,setRollCount]=useState<RollCount>(inititalRollCount)
 
+  let stateList: StateList[]=[
+
+    { type: "all", count: rollCount.presentCount + rollCount.absentCount + rollCount.lateCount },
+    { type: "present", count: rollCount.presentCount },
+    { type: "late", count: rollCount.lateCount },
+    { type: "absent", count: rollCount.absentCount },
+  ]
   return (
     <>
       <S.PageContainer>
@@ -99,7 +115,7 @@ export const HomeBoardPage: React.FC = () => {
 
         {loadState === "loaded" && sortArray
           ? sortArray.map((s)=>(
-            <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
+            <StudentListTile key={s.id} isRollMode={isRollMode} student={s} rollCount={rollCount}setRollCount={setRollCount}/>
           ))
           : loadState === "loaded" &&
             data?.students && (
@@ -107,8 +123,8 @@ export const HomeBoardPage: React.FC = () => {
              {setSortArray(data.students)}
                 {console.log("issorted?", sortArray)}
                 {data?.students?.map((s) => (
-                  <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
-                ))}
+            <StudentListTile key={s.id} isRollMode={isRollMode} student={s} rollCount={rollCount}setRollCount={setRollCount}/>
+            ))}
 
                 {console.log(!isSort)}
               </>
@@ -120,7 +136,7 @@ export const HomeBoardPage: React.FC = () => {
           </CenteredContainer>
         )}
       </S.PageContainer>
-      <ActiveRollOverlay isActive={isRollMode} onItemClick={onActiveRollAction} />
+      <ActiveRollOverlay isActive={isRollMode} onItemClick={onActiveRollAction} stateList={stateList}/>
     </>
   )
 }
@@ -174,3 +190,15 @@ const S = {
     }
   `,
 }
+interface RollCount {
+  presentCount: number
+  absentCount: number
+  lateCount: number
+}
+
+interface StateList {
+  type: ItemType
+  count: number
+}
+
+type ItemType = RolllStateType | "all"
