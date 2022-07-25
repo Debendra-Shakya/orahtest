@@ -13,6 +13,7 @@ import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active
 import orderBy from "lodash/orderBy"
 import { RolllStateType } from "shared/models/roll"
 import {add,get,LocalStorageKey} from "shared/helpers/local-storage"
+import { faAngleDown } from "@fortawesome/free-solid-svg-icons"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
@@ -175,6 +176,9 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
     <S.ToolbarContainer>
       <div onClick={() => onItemClick("sort")}>{click%2==1?"First Name":"Last Name"}</div>
       {/* <div onClick={() => onItemClick(Click)}>first Name</div> */}
+      <S.ToggleButton onClick={() => onItemClick("sort")}>
+          <FontAwesomeIcon icon={faAngleDown} />
+        </S.ToggleButton>
       <input
         type="text"
         placeholder="Search"
@@ -195,6 +199,26 @@ const S = {
     width: 50%;
     margin: ${Spacing.u4} auto 140px;
   `,
+   ToggleButton: styled.button`
+   width: 1rem;
+   height: 1rem;
+   margin-left: 0.2rem !important;
+   position: relative;
+   background-color: ${Colors.blue.base};
+   border: none;
+   border-radius: 4px;
+   transition: all 0.2s ease;
+
+   &.desc {
+
+     &:hover {
+       background-color: ${Colors.blue.base};
+     }
+     & .fa-angle-down {
+       transform: rotate(180deg);
+     }
+   }
+ `,
   ToolbarContainer: styled.div`
     display: flex;
     justify-content: space-between;
