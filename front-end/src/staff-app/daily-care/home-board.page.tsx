@@ -93,7 +93,7 @@ export const HomeBoardPage: React.FC = () => {
 
     if (action === "sort") {
       setIsSort(true)
-      // sortOrder==="asc"? setSortOrder('desc'):setSortOrder("asc")
+
       let clickCount = click + 1
 
       setClick(clickCount)
@@ -131,7 +131,7 @@ export const HomeBoardPage: React.FC = () => {
   return (
     <>
       <S.PageContainer>
-        <Toolbar onItemClick={onToolbarAction} searchHandle={searchHandle} />
+        <Toolbar onItemClick={onToolbarAction} searchHandle={searchHandle} click={click} />
 
         {loadState === "loading" && (
           <CenteredContainer>
@@ -171,12 +171,13 @@ type ToolbarAction = "roll" | "sort"
 interface ToolbarProps {
   onItemClick: (action: ToolbarAction, value?: string) => void
   searchHandle: (value: string) => void
+  click:number
 }
 const Toolbar: React.FC<ToolbarProps> = (props) => {
-  const { onItemClick, searchHandle } = props
+  const { onItemClick, searchHandle,click } = props
   return (
     <S.ToolbarContainer>
-      <div onClick={() => onItemClick("sort")}>First name</div>
+      <div onClick={() => onItemClick("sort")}>{click%2==1?"First Name":"Last Name"}</div>
       {/* <div onClick={() => onItemClick(Click)}>first Name</div> */}
       <input
         type="text"
