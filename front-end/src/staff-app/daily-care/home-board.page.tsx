@@ -19,12 +19,17 @@ export const HomeBoardPage: React.FC = () => {
 
   const [filtered,setFiltered]=useState<boolean>(false)
   const [sortArray, setSortArray] = useState<Person[]>()
+  const [sortOrder, setSortOrder] = useState("")
   const [click, setClick] = useState(0)
   const [isSort, setIsSort] = useState(false)
+  const [nameSortType, setNameSortType] = useState("first")
 
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
 
   const searchHandle = (value: string) => {
+    if(value==""){
+      setSortArray(sortArray)
+    }
 
     if (value && value.length > 0) {
       if (sortArray && sortArray.length) {
@@ -51,6 +56,35 @@ export const HomeBoardPage: React.FC = () => {
   //     console.log('sdata')
   //   }
   // }, [data])
+  function sortasc(){
+    let arr = data?.students.map((s) => {
+      return s
+    })
+    let sorted_arr = orderBy(arr, ["first_name"], ["asc"])
+    console.log("asace array", sorted_arr)
+    setSortArray(sorted_arr)
+  }
+  useEffect(()=>{
+    if(sortArray!== undefined){
+      if(sortOrder==="asc"){
+        if(nameSortType==="first"){
+          const sortedList= orderBy(sortArray, ["first_name"], ["asc"])
+            setSortArray(sortedList)
+        }else{
+          const sortedList= orderBy(sortArray,["last_name"],["asc"])
+          setSortArray(sortedList)
+        }
+      }else if(sortOrder==="desc"){
+        if(nameSortType==="first"){
+          const sortedList = orderBy(sortArray,["first_name"],["desc"])
+          setSortArray(sortedList)
+        }else{
+          const sortedList=orderBy(sortArray,["last_name"],["desc"])
+          setSortArray(sortedList)
+        }
+      }
+    }
+  },[sortOrder,nameSortType])
 
   const onToolbarAction = (action: ToolbarAction) => {
     if (action === "roll") {
@@ -59,26 +93,18 @@ export const HomeBoardPage: React.FC = () => {
 
     if (action === "sort") {
       setIsSort(true)
+      // sortOrder==="asc"? setSortOrder('desc'):setSortOrder("asc")
       let clickCount = click + 1
 
       setClick(clickCount)
       console.log(click)
       if (click % 2 === 0) {
-        let arr = data?.students.map((s) => {
-          return s
-        })
-        let sorted_arr = orderBy(arr, ["first_name"], ["desc"])
-        console.log("asace array", sorted_arr)
-        setSortArray(sorted_arr)
+        setSortOrder("asc")
+      
         // return sortArray
       } else {
-        let arr = data?.students.map((s) => {
-          return s
-        })
-        let sorted_arr = orderBy(arr, ["first_name"], ["asc"])
-        console.log("asace array", sorted_arr)
-        setSortArray(sorted_arr)
-        return sortArray
+        setSortOrder("desc")
+       
       }
     }
   }
