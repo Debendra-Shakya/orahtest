@@ -27,20 +27,16 @@ export const HomeBoardPage: React.FC = () => {
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
 
   const searchHandle = (value: string) => {
-    if(value==""){
-      setSortArray(sortArray)
-    }
-
-    if (value && value.length > 0) {
-      if (sortArray && sortArray.length) {
-        setSortArray(sortArray.filter((s) => s.first_name.toLowerCase().match(value.toLowerCase())))
+    if(value!=="" && value.length >0){
+      if (value && value.length > 0) {
+        if (sortArray && sortArray.length) {
+          setSortArray(sortArray.filter((s) => s.first_name.toLowerCase().match(value.toLowerCase())))
+        }
       }
-      if (data?.students) {
-        return data.students.filter((s) => {
-          s.first_name.toLowerCase().match(value.toLowerCase())
-        })
-      }
+    }else{
+      setSortArray(data?.students)
     }
+    
   }
 
   let sdata = data?.students
