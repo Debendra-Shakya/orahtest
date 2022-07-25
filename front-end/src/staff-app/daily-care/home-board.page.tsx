@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useRef} from "react"
+import React, { useState, useEffect, useRef } from "react"
 import styled from "styled-components"
 import Button from "@material-ui/core/ButtonBase"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -12,15 +12,15 @@ import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active
 
 import orderBy from "lodash/orderBy"
 import { RolllStateType } from "shared/models/roll"
-import {add,get,LocalStorageKey} from "shared/helpers/local-storage"
-import { faAngleDown } from "@fortawesome/free-solid-svg-icons"
+import { add, get, LocalStorageKey } from "shared/helpers/local-storage"
+import { faAngleDown, faAngleUp } from "@fortawesome/free-solid-svg-icons"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
 
-  const [filtered,setFiltered]=useState<boolean>(false)
+  const [filtered, setFiltered] = useState<boolean>(false)
   const [sortArray, setSortArray] = useState<Person[]>()
-  const [sortOrder, setSortOrder] = useState("")
+  const [sortOrder, setSortOrder] = useState("asc")
   const [click, setClick] = useState(0)
   const [isSort, setIsSort] = useState(false)
   const [nameSortType, setNameSortType] = useState("first")
@@ -28,16 +28,15 @@ export const HomeBoardPage: React.FC = () => {
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
 
   const searchHandle = (value: string) => {
-    if(value!=="" && value.length >0){
+    if (value !== "" && value.length > 0) {
       if (value && value.length > 0) {
         if (sortArray && sortArray.length) {
           setSortArray(sortArray.filter((s) => s.first_name.toLowerCase().match(value.toLowerCase())))
         }
       }
-    }else{
+    } else {
       setSortArray(data?.students)
     }
-    
   }
 
   let sdata = data?.students
@@ -53,7 +52,7 @@ export const HomeBoardPage: React.FC = () => {
   //     console.log('sdata')
   //   }
   // }, [data])
-  function sortasc(){
+  function sortasc() {
     let arr = data?.students.map((s) => {
       return s
     })
@@ -61,31 +60,34 @@ export const HomeBoardPage: React.FC = () => {
     console.log("asace array", sorted_arr)
     setSortArray(sorted_arr)
   }
-  useEffect(()=>{
-    if(sortArray!== undefined){
-      if(sortOrder==="asc"){
-        if(nameSortType==="first"){
-          const sortedList= orderBy(sortArray, ["first_name"], ["asc"])
-            setSortArray(sortedList)
-        }else{
-          const sortedList= orderBy(sortArray,["last_name"],["asc"])
+  useEffect(() => {
+    if (sortArray !== undefined) {
+      if (sortOrder === "asc") {
+        if (nameSortType === "first") {
+          const sortedList = orderBy(sortArray, ["first_name"], ["asc"])
+          setSortArray(sortedList)
+        } else {
+          const sortedList = orderBy(sortArray, ["last_name"], ["asc"])
           setSortArray(sortedList)
         }
-      }else if(sortOrder==="desc"){
-        if(nameSortType==="first"){
-          const sortedList = orderBy(sortArray,["first_name"],["desc"])
+      } else if (sortOrder === "desc") {
+        if (nameSortType === "first") {
+          const sortedList = orderBy(sortArray, ["first_name"], ["desc"])
           setSortArray(sortedList)
-        }else{
-          const sortedList=orderBy(sortArray,["last_name"],["desc"])
+        } else {
+          const sortedList = orderBy(sortArray, ["last_name"], ["desc"])
           setSortArray(sortedList)
         }
       }
     }
-  },[sortOrder,nameSortType])
+  }, [sortOrder, nameSortType])
 
   const onToolbarAction = (action: ToolbarAction) => {
     if (action === "roll") {
       setIsRollMode(true)
+    }
+    if (action === "sortname") {
+      nameSortType === "first" ? setNameSortType("last") : setNameSortType("first")
     }
 
     if (action === "sort") {
@@ -97,11 +99,10 @@ export const HomeBoardPage: React.FC = () => {
       console.log(click)
       if (click % 2 === 0) {
         setSortOrder("asc")
-      
+
         // return sortArray
       } else {
         setSortOrder("desc")
-       
       }
     }
   }
@@ -109,17 +110,16 @@ export const HomeBoardPage: React.FC = () => {
   const onActiveRollAction = (action: ActiveRollAction) => {
     if (action === "exit") {
       setIsRollMode(false)
-    } 
+    }
   }
-  const inititalRollCount={
-    presentCount:0,
-    absentCount:0,
-    lateCount:0,
+  const inititalRollCount = {
+    presentCount: 0,
+    absentCount: 0,
+    lateCount: 0,
   }
-  const [rollCount,setRollCount]=useState<RollCount>(inititalRollCount)
+  const [rollCount, setRollCount] = useState<RollCount>(inititalRollCount)
 
-  let stateList: StateList[]=[
-
+  let stateList: StateList[] = [
     { type: "all", count: rollCount.presentCount + rollCount.absentCount + rollCount.lateCount },
     { type: "present", count: rollCount.presentCount },
     { type: "late", count: rollCount.lateCount },
@@ -128,7 +128,7 @@ export const HomeBoardPage: React.FC = () => {
   return (
     <>
       <S.PageContainer>
-        <Toolbar onItemClick={onToolbarAction} searchHandle={searchHandle} click={click} />
+        <Toolbar onItemClick={onToolbarAction} searchHandle={searchHandle} nameSortType={nameSortType} click={click} />
 
         {loadState === "loading" && (
           <CenteredContainer>
@@ -137,17 +137,15 @@ export const HomeBoardPage: React.FC = () => {
         )}
 
         {loadState === "loaded" && sortArray
-          ? sortArray.map((s)=>(
-            <StudentListTile key={s.id} isRollMode={isRollMode} student={s} rollCount={rollCount}setRollCount={setRollCount}/>
-          ))
+          ? sortArray.map((s) => <StudentListTile key={s.id} isRollMode={isRollMode} student={s} rollCount={rollCount} setRollCount={setRollCount} />)
           : loadState === "loaded" &&
             data?.students && (
               <>
-             {setSortArray(data.students)}
+                {setSortArray(data.students)}
                 {console.log("issorted?", sortArray)}
                 {data?.students?.map((s) => (
-            <StudentListTile key={s.id} isRollMode={isRollMode} student={s} rollCount={rollCount}setRollCount={setRollCount}/>
-            ))}
+                  <StudentListTile key={s.id} isRollMode={isRollMode} student={s} rollCount={rollCount} setRollCount={setRollCount} />
+                ))}
 
                 {console.log(!isSort)}
               </>
@@ -159,26 +157,25 @@ export const HomeBoardPage: React.FC = () => {
           </CenteredContainer>
         )}
       </S.PageContainer>
-      <ActiveRollOverlay isActive={isRollMode} onItemClick={onActiveRollAction} stateList={stateList}/>
+      <ActiveRollOverlay isActive={isRollMode} onItemClick={onActiveRollAction} stateList={stateList} />
     </>
   )
 }
 
-type ToolbarAction = "roll" | "sort"
+type ToolbarAction = "roll" | "sort" | "sortname"
 interface ToolbarProps {
   onItemClick: (action: ToolbarAction, value?: string) => void
   searchHandle: (value: string) => void
-  click:number
+  nameSortType: string
+  click: number
 }
 const Toolbar: React.FC<ToolbarProps> = (props) => {
-  const { onItemClick, searchHandle,click } = props
+  const { onItemClick, searchHandle, nameSortType, click } = props
   return (
     <S.ToolbarContainer>
-      <div onClick={() => onItemClick("sort")}>{click%2==1?"First Name":"Last Name"}</div>
+      <div onClick={() => onItemClick("sortname")}>{nameSortType === "first" ? "First Name" : "Last Name"}</div>
       {/* <div onClick={() => onItemClick(Click)}>first Name</div> */}
-      <S.ToggleButton onClick={() => onItemClick("sort")}>
-          <FontAwesomeIcon icon={faAngleDown} />
-        </S.ToggleButton>
+      <S.ToggleButton onClick={() => onItemClick("sort")}>{click % 2 == 0 ? <FontAwesomeIcon icon={faAngleDown} /> : <FontAwesomeIcon icon={faAngleUp} />}</S.ToggleButton>
       <input
         type="text"
         placeholder="Search"
@@ -199,26 +196,25 @@ const S = {
     width: 50%;
     margin: ${Spacing.u4} auto 140px;
   `,
-   ToggleButton: styled.button`
-   width: 1rem;
-   height: 1rem;
-   margin-left: 0.2rem !important;
-   position: relative;
-   background-color: ${Colors.blue.base};
-   border: none;
-   border-radius: 4px;
-   transition: all 0.2s ease;
+  ToggleButton: styled.button`
+    width: 1rem;
+    height: 1rem;
+    margin-left: 0.2rem !important;
+    position: relative;
+    background-color: ${Colors.blue.base};
+    border: none;
+    border-radius: 4px;
+    transition: all 0.2s ease;
 
-   &.desc {
-
-     &:hover {
-       background-color: ${Colors.blue.base};
-     }
-     & .fa-angle-down {
-       transform: rotate(180deg);
-     }
-   }
- `,
+    &.desc {
+      &:hover {
+        background-color: ${Colors.blue.base};
+      }
+      & .fa-angle-down {
+        transform: rotate(180deg);
+      }
+    }
+  `,
   ToolbarContainer: styled.div`
     display: flex;
     justify-content: space-between;
